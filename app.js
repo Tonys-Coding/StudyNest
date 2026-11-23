@@ -194,12 +194,12 @@ function home() {
         <a href="#/bookmarks" class="saved-link">${icon('bookmark')} <span>${state.bookmarks.length} ${state.bookmarks.length === 1 ? 'bookmark' : 'bookmarks'}</span>${icon('right')}</a>
       </section>
     </div>
-    <section class="catalog" aria-labelledby="catalog-title">
+    <section class="catalog dashboard-catalog" aria-labelledby="catalog-title">
       <div class="section-heading">
         <h2 id="catalog-title">Explore courses</h2>
+        ${filterButtons()}
         <a class="text-link" href="#/library">View library ${icon('out')}</a>
       </div>
-      ${filterButtons()}
       <div class="course-grid" id="course-grid">${courseGrid()}</div>
     </section>`;
 }
