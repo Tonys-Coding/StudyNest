@@ -99,28 +99,19 @@ function links(current, mobile = false) {
 
 function layout(route, content) {
   const current = ['section', 'course'].includes(route.page) ? 'library' : route.page;
-  const currentLabel = nav.find(([item]) => item === current)?.[2] ?? 'Course library';
+  const wide = route.page === 'home' || route.page === 'library';
   return `
-    <aside class="sidebar">
-      <a href="#/" class="brand"><img width="36" height="36" src="./assets/icon-192.png" alt="">StudyNest</a>
-      <p class="side-label">Workspace</p>
-      <nav class="side-nav" aria-label="Main navigation">${links(current)}</nav>
-      <div class="side-bottom">
-        <button class="install" type="button" data-install>${icon('phone')}<span>Install StudyNest</span>${icon('out')}</button>
-        <div class="profile"><span class="avatar" aria-hidden="true">AS</span><div><strong>Anthony</strong><small>Personal workspace</small></div></div>
-      </div>
-    </aside>
-    <div class="workspace">
-      <header class="topbar">
-        <div class="topbar-inner">
-          <a href="#/" class="brand mobile-brand"><img width="34" height="34" src="./assets/icon-192.png" alt="">StudyNest</a>
-          <div class="breadcrumb"><span>Workspace</span>${icon('right')}<strong>${currentLabel}</strong></div>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a href="#/" class="brand"><img width="36" height="36" src="./assets/icon-192.png" alt="">StudyNest</a>
+        <nav class="desktop-nav" aria-label="Main navigation">${links(current)}</nav>
+        <div class="topbar-actions">
           <button class="search-trigger" type="button" aria-label="Search lessons" data-search>${icon('search')}<span>Search lessons</span><kbd>${/Mac/i.test(navigator.platform) ? '⌘' : 'Ctrl'} K</kbd></button>
-          <button class="mobile-install square-button" type="button" aria-label="Install StudyNest" data-install>${icon('phone')}</button>
+          <button class="square-button" type="button" aria-label="Install StudyNest" title="Install StudyNest" data-install>${icon('phone')}</button>
         </div>
-      </header>
-      <main class="main" id="main" tabindex="-1">${content}</main>
-    </div>
+      </div>
+    </header>
+    <main class="main${wide ? ' main-wide' : ''}" id="main" tabindex="-1">${content}</main>
     <nav class="bottom-nav" aria-label="Mobile navigation">${links(current, true)}</nav>`;
 }
 
@@ -167,41 +158,45 @@ function home() {
   const count = completedIn(featured);
   const finished = count === featured.sections.length;
   const totalDone = courses.reduce((total, course) => total + completedIn(course), 0);
+  const completion = Math.round(totalDone / sectionCount * 100);
   const active = recent && (!isComplete(featured, recent.section) || finished)
     ? recent.section
     : featured.sections.find(section => !isComplete(featured, section));
 
   return `
     <section class="welcome">
-      <p class="eyebrow"><span></span> YOUR LEARNING SPACE</p>
       <h1>Good to see you, Anthony.</h1>
-      <p>Pick up where you left off or find something new to learn.</p>
+      <p>Continue a lesson or explore a new topic.</p>
     </section>
     <div class="dashboard-grid">
       <section class="hero">
-        <div class="hero-heading">
+        <div class="hero-content">
           <p class="hero-label">${icon(recent && !finished ? 'start' : 'spark')}${recent && !finished ? 'CONTINUE LEARNING' : finished ? 'COMPLETED COURSE' : 'FEATURED COURSE'}</p>
           <h2>${featured.title}</h2>
+          <p class="hero-description">${recent && !finished ? active.title : featured.description}</p>
+          <div class="hero-footer">
+            <a class="button hero-button" href="${finished ? href(featured) : href(featured, active)}" ${recent && !finished ? 'data-resume' : ''}>${finished ? 'Review course' : recent ? 'Resume lesson' : 'Start learning'}${icon('arrow')}</a>
+            <div class="hero-meta"><span>${icon('list')}${featured.sections.length} sections</span><span>${icon('clock')}${courseMinutes(featured)} min</span></div>
+          </div>
         </div>
         <div class="hero-art cover-${featured.id}">${courseArtwork(featured)}</div>
-        <div class="hero-copy">
-          <p class="hero-description">${recent && !finished ? active.title : featured.description}</p>
-          <a class="button hero-button" href="${finished ? href(featured) : href(featured, active)}" ${recent && !finished ? 'data-resume' : ''}>${finished ? 'Review course' : recent ? 'Resume lesson' : 'Start learning'}${icon('arrow')}</a>
-        </div>
-        <div class="hero-meta"><span>${icon('list')}${featured.sections.length} sections</span><span>${icon('clock')}${courseMinutes(featured)} min</span></div>
       </section>
       <section class="progress-panel" aria-labelledby="progress-title">
-        <div class="panel-icon">${icon('progress')}</div>
-        <h2 id="progress-title">Study progress</h2>
-        <div class="progress-value"><strong>${totalDone}</strong><span> / ${sectionCount} sections</span></div>
-        ${progress(totalDone, sectionCount, 'Total sections completed')}
-        <div class="progress-caption"><span>Overall completion</span><strong>${Math.round(totalDone / sectionCount * 100)}%</strong></div>
+        <div class="progress-heading"><div class="panel-icon">${icon('progress')}</div><h2 id="progress-title">Study progress</h2></div>
+        <div class="progress-metric">
+          <div class="progress-ring" style="--completion: ${completion}%" aria-hidden="true"><span>${completion}%</span></div>
+          <div class="progress-value"><strong>${totalDone}<span> / ${sectionCount}</span></strong><span>Sections completed</span></div>
+        </div>
+        <div class="progress-linear">
+          ${progress(totalDone, sectionCount, 'Total sections completed')}
+          <div class="progress-caption"><span>Overall completion</span><strong>${completion}%</strong></div>
+        </div>
         <a href="#/bookmarks" class="saved-link">${icon('bookmark')} <span>${state.bookmarks.length} ${state.bookmarks.length === 1 ? 'bookmark' : 'bookmarks'}</span>${icon('right')}</a>
       </section>
     </div>
     <section class="catalog" aria-labelledby="catalog-title">
       <div class="section-heading">
-        <div><h2 id="catalog-title">Explore courses</h2><p>Choose a topic to start learning.</p></div>
+        <h2 id="catalog-title">Explore courses</h2>
         <a class="text-link" href="#/library">View library ${icon('out')}</a>
       </div>
       ${filterButtons()}

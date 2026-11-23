@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'studynest-shell-';
-const CACHE_NAME = CACHE_PREFIX + '3';
+const CACHE_NAME = CACHE_PREFIX + '4';
 const SHELL = [
   './', './index.html', './styles.css', './app.js', './courses.js',
   './manifest.webmanifest', './assets/icon-192.png', './assets/icon-512.png',
