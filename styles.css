@@ -254,6 +254,9 @@ code { font-family: ui-monospace, "SF Mono", Consolas, monospace; }
 .block-label { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; color: var(--blue); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
 .block-label .icon { width: 15px; height: 15px; }
 .step-chips { display: flex; flex-wrap: wrap; gap: 7px; margin: 12px 0 10px; }
+.counter-demo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+.counter-demo output { min-width: 56px; padding: 6px 10px; color: var(--blue); border: 1px solid #33465f; border-radius: 10px; background: #121925; font-size: 24px; font-weight: 730; font-variant-numeric: tabular-nums; text-align: center; }
+.counter-controls { display: flex; flex-wrap: wrap; gap: 7px; }
 .step-chip { display: flex; align-items: center; gap: 5px; min-height: 44px; border: 1px solid #47546a; border-radius: 999px; padding: 7px 10px; background: #212a39; color: var(--text); font-size: 12px; font-weight: 650; }
 .step-chip > span { display: grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; background: #2c3b50; color: #eaf2ff; font-size: 10px; }
 .step-chip:hover { border-color: var(--blue); }

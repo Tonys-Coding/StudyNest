@@ -2,6 +2,7 @@ const text = (title, body) => ({ type: 'text', title, body });
 const note = (title, body) => ({ type: 'note', title, body });
 const code = (language, content) => ({ type: 'code', language, content });
 const steps = (title, items) => ({ type: 'steps', title, items });
+const counter = (title, description) => ({ type: 'counter', title, description });
 const quiz = (question, options, correct, feedback) => ({ type: 'quiz', question, options, correct, feedback });
 
 const courses = [
@@ -35,13 +36,45 @@ const courses = [
         ],
       },
       {
-        id: 'frameworks', title: 'Popular backend frameworks', minutes: 5,
-        intro: 'Recognize which work a framework handles for your application.',
+        id: 'frameworks', title: 'Express and other backend frameworks', minutes: 14,
+        intro: 'Start with one appointments API, then compare how popular frameworks help build it.',
         blocks: [
-          text('Start with the framework’s job', 'A web framework connects a URL and method to your code. It can also help handle JSON, errors, and middleware. You still define what a request should do and how the application stores information.'),
-          text('Express, FastAPI, and Django', 'Express gives JavaScript projects a small set of routing and middleware tools. FastAPI suits Python APIs that use type hints and automatic API docs. Django provides a larger set of built-in tools, including its ORM and admin interface.'),
-          code('JavaScript', 'app.get("/lessons", (request, response) => {\n  response.json([{ id: "backend", title: "Backend Fundamentals" }]);\n});'),
-          quiz('What does the GET handler above return?', ['A JSON array', 'An HTML document', 'A database connection'], 0, 'The handler calls response.json with an array of lesson objects.'),
+          text('A server has a job for each request', 'When a resident opens an appointments page, the frontend asks the backend for appointments. The backend can check who is making the request, look up records, and send data back. The browser uses that response to build the screen.'),
+          steps('Pick an action for the appointments API', [
+            { label: 'Read', detail: 'GET /api/appointments requests the list. A successful response can return 200 and a JSON array.' },
+            { label: 'Create', detail: 'POST /api/appointments sends the details for a new appointment. The server validates them before creating a record.' },
+            { label: 'Update', detail: 'PATCH /api/appointments/1 changes specific fields on appointment 1, such as the time.' },
+            { label: 'Delete', detail: 'DELETE /api/appointments/1 asks to remove appointment 1. The server decides if the caller is allowed to do that.' },
+          ]),
+          text('Node.js runs JavaScript on the server', 'Node.js provides modules for opening an HTTP server and reading incoming requests. You can use those modules directly. Express adds a routing and middleware API so you can describe each endpoint with less plumbing.'),
+          code('Terminal', 'mkdir appointments-api\ncd appointments-api\nnpm init -y\nnpm install express'),
+          code('JavaScript · server.js', `const express = require("express");
+const app = express();
+
+app.use(express.json());
+
+app.get("/api/appointments", (request, response) => {
+  response.json([{ id: 1, title: "Caseworker meeting" }]);
+});
+
+app.listen(3000);`),
+          text('Read the Express example in order', 'express() creates the app. express.json() prepares JSON bodies for routes that receive them. app.get() registers a handler for the matching HTTP method and path, and response.json() sends the array to the caller. Run node server.js, then open http://localhost:3000/api/appointments to see the sample response.'),
+          note('Where middleware fits', 'Middleware can run before the endpoint handler. For example, a logger can record the request method and path, then call next() so the handler runs. An authentication middleware can end a request early if the caller has no valid session.'),
+          steps('Compare JavaScript and TypeScript frameworks', [
+            { label: 'Express', detail: 'A small routing and middleware API. You decide how to organize routes, validate input, and connect other tools.' },
+            { label: 'Fastify', detail: 'Routes can declare JSON Schemas for request validation and response serialization. Plugins help you organize related parts of the server.' },
+            { label: 'NestJS', detail: 'Controllers handle endpoints and services contain work you can reuse. Dependency injection lets Nest supply a controller with its service.' },
+            { label: 'Hono and Elysia', detail: 'Hono uses standard Web Request and Response APIs and supports several runtimes. Elysia emphasizes TypeScript inference and is commonly used with Bun.' },
+          ]),
+          steps('Look beyond JavaScript', [
+            { label: 'FastAPI', detail: 'A Python API framework that uses type annotations for validation and generates OpenAPI documentation.' },
+            { label: 'Django', detail: 'A Python framework with a database ORM and an admin interface for working with registered models.' },
+            { label: 'Flask', detail: 'A small Python web framework that lets you add pieces for data access, forms, and other needs.' },
+            { label: 'Other ecosystems', detail: 'Spring Boot is common in Java, ASP.NET Core in C#, and Rails in Ruby. The same ideas of routes, request handling, and data access carry over.' },
+          ]),
+          text('Where Next.js fits', 'A Next.js application can serve its React pages and its API from the same project. A team can also put its API in a separate Express, Fastify, or other server when several clients share it or when the API needs its own release cycle.'),
+          text('Where the data lives', 'A database stores the appointments. A tool such as Prisma lets server code read and write database records, while the framework handles requests. Authentication identifies the caller, and authorization decides which records that caller may access.'),
+          quiz('Which tool in the example maps GET /api/appointments to a handler?', ['SQLite', 'Express', 'The React component'], 1, 'Express matches the method and path. The database stores records and the React component displays data.'),
         ],
       },
       {
@@ -70,20 +103,79 @@ const courses = [
   },
   {
     id: 'react', category: 'Frontend', level: 'Foundations', icon: 'layers',
-    title: 'Thinking in React', description: 'Break a screen into components and learn how state connects them.',
+    title: 'Thinking in React', description: 'Start with React and Next.js, then compare Svelte and build interactive components.',
     sections: [
       {
-        id: 'components', title: 'Split the screen into components', minutes: 4,
-        intro: 'Start with a familiar screen and find the pieces you could reuse.',
+        id: 'components', title: 'React and Next.js for beginners', minutes: 9,
+        intro: 'Use a dashboard to understand what React builds and what Next.js adds.',
         blocks: [
-          text('A component describes part of a UI', 'A React component is usually a function that returns JSX. A course library could use a CourseCard component for every course. Each instance uses the same structure with its own title and category.'),
-          code('JSX', 'function CourseCard({ title, category }) {\n  return <article><p>{category}</p><h2>{title}</h2></article>;\n}'),
-          steps('Break down a course library', [
-            { label: 'Library', detail: 'The library brings together the filters and the course list.' },
-            { label: 'Course list', detail: 'The list loops over the available courses and creates one card for each course ID.' },
-            { label: 'Course card', detail: 'The card gets a title and category and displays them consistently.' },
+          text('Start with a page you already know', 'On a resident dashboard, HTML gives the page its structure, CSS describes its appearance, and JavaScript handles actions such as opening a menu. React helps organize that interface into reusable pieces as the page grows.'),
+          text('React builds the pieces you see and use', 'A component is a piece of the interface described by a JavaScript function. In this example, JSX is the HTML-like syntax. The title and time are props, which are inputs that let one component show different appointments.'),
+          code('JSX', `function AppointmentCard({ title, time }) {
+  return (
+    <article>
+      <h2>{title}</h2>
+      <p>{time}</p>
+    </article>
+  );
+}
+
+// Example use inside another component
+// <AppointmentCard title="Caseworker meeting" time="10:00 AM" />`),
+          text('State is data the interface remembers', 'A counter has a value that can change. React’s useState gives a component the current value and a function to update it. When you press the button, React uses the new value to update the display.'),
+          code('JSX', `import { useState } from "react";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(previous => previous + 1)}>
+      Count: {count}
+    </button>
+  );
+}`),
+          counter('Try changing the count', 'Press Increase or Decrease. The display follows the current value. Reset puts it back at the starting value.'),
+          text('Next.js organizes the application around React', 'Next.js is a framework built on React. You still write React components. Next.js adds conventions for pages, layouts and server code, along with tools for how and where to render a page.'),
+          steps('See what Next.js adds', [
+            { label: 'Routes', detail: 'With the App Router, app/appointments/page.tsx creates the /appointments page. The file’s location describes the URL.' },
+            { label: 'Rendering', detail: 'A page can be prepared ahead of time, rendered on the server when needed, or updated by JavaScript in the browser. The right choice depends on the page and its data.' },
+            { label: 'Backend', detail: 'A route handler at app/api/appointments/route.ts can return appointment data. The project still needs its own choices for storage and sign-in.' },
+            { label: 'Layouts', detail: 'A shared layout can place the same navigation around several pages, so each page only describes its own content.' },
           ]),
-          quiz('Where should the card title come from?', ['A prop for each course', 'A hardcoded heading shared by every card', 'A browser setting'], 0, 'Props let each card instance render its own course information.'),
+          text('Put the layers together', 'In an appointments portal, Next.js can handle the URL, Prisma can query a SQLite database on the server, and a React component can turn the records into appointment cards. Each tool has a separate job.'),
+          note('Other ways to start', 'React with Vite is a way to build a React frontend with a development and build tool. Vue and Svelte also help build interfaces. Nuxt and SvelteKit add application structure around Vue and Svelte.'),
+          quiz('Your project already uses Next.js. What do you use to build its appointment cards?', ['React components', 'A second framework to replace React', 'A database table for each card'], 0, 'Next.js uses React for the interface. One component can display many appointments using different props.'),
+        ],
+      },
+      {
+        id: 'svelte-comparison', title: 'Svelte, SvelteKit, and Next.js', minutes: 10,
+        intro: 'Build the same counter twice, then compare how two frameworks load a real page.',
+        blocks: [
+          text('Compare the same layers', 'React and Svelte both help you build and update the interface. Next.js and SvelteKit add routing and server features around React and Svelte respectively. Comparing each pair answers a different question.'),
+          text('The same state change in React and Svelte', 'The React example calls a setter from useState. In a Svelte 5 component, $state declares a reactive value, and an assignment to that value can update the view. Both examples start at zero and add one per click.'),
+          code('JSX · Counter.jsx', `import { useState } from "react";
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <button onClick={() => setCount(previous => previous + 1)}>
+      Count: {count}
+    </button>
+  );
+}`),
+          code('Svelte · Counter.svelte', `<script>
+  let count = $state(0);
+</script>
+
+<button onclick={() => count += 1}>Count: {count}</button>`),
+          counter('Try the shared result', 'Both versions describe the same behavior. Use the controls to watch the number change.'),
+          steps('Trace an appointments page in both frameworks', [
+            { label: 'Next.js route', detail: 'app/appointments/page.tsx defines the page. An async Server Component can call a server-side data function and then render the appointment list.' },
+            { label: 'SvelteKit route', detail: 'src/routes/appointments/+page.svelte defines the page. A load function in the adjacent +page.server.ts can fetch records and pass them to the page.' },
+            { label: 'What they share', detail: 'Both support routing, rendering on the server, pages built ahead of time, server endpoints, and form handling. The files and conventions differ.' },
+          ]),
+          text('Choose around your project', 'For a team with existing React components and integrations, Next.js makes that work easier to reuse. For a small project where the team prefers the Svelte component syntax, SvelteKit is a natural choice.'),
+          note('Measure the page you build', 'The amount of JavaScript, time spent fetching data, and rendering choices can all affect how fast a page feels. A framework name alone does not settle performance.'),
+          quiz('Which pair are both application frameworks?', ['React and SvelteKit', 'Next.js and SvelteKit', 'React and Svelte'], 1, 'Next.js structures applications built with React, and SvelteKit does the same for Svelte.'),
         ],
       },
       {

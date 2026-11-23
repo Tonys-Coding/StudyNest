@@ -284,6 +284,18 @@ function lessonBlock(block, index) {
         <div class="step-chips" role="group" aria-label="Choose a step">
           ${block.items.map((item, step) => `<button type="button" class="step-chip" data-step="${step}" aria-pressed="${step === 0}"><span>${step + 1}</span>${item.label}</button>`).join('')}
         </div><p class="step-detail" aria-live="polite">${block.items[0].detail}</p></section>`;
+    case 'counter':
+      return `<section class="interactive" data-block="${index}">
+        <p class="block-label">${icon('spark')} INTERACTIVE EXAMPLE</p><h2>${escapeHtml(block.title)}</h2>
+        <p class="step-detail">${escapeHtml(block.description)}</p>
+        <div class="counter-demo">
+          <output aria-label="Current count">0</output>
+          <div class="counter-controls" role="group" aria-label="Counter controls">
+            <button class="button secondary" type="button" data-counter="-1">Decrease</button>
+            <button class="button primary" type="button" data-counter="1">Increase</button>
+            <button class="button secondary" type="button" data-counter="0">Reset</button>
+          </div>
+        </div></section>`;
     case 'quiz':
       return `<section class="interactive quiz" data-block="${index}">
         <p class="block-label">${icon('check')} QUICK CHECK</p><h2>${block.question}</h2>
@@ -513,6 +525,12 @@ shell.addEventListener('click', async event => {
   const widget = target.closest('[data-block]');
   if (!widget) return;
   const block = section.blocks[Number(widget.dataset.block)];
+  if (block.type === 'counter' && target.hasAttribute('data-counter')) {
+    const count = widget.querySelector('output');
+    const delta = Number(target.dataset.counter);
+    count.value = String(delta === 0 ? 0 : Number(count.value) + delta);
+    return;
+  }
   widget.querySelectorAll('button').forEach(button => {
     button.setAttribute('aria-pressed', String(button === target));
   });
